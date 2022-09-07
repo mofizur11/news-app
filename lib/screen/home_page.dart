@@ -25,8 +25,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
         leading: const Icon(
           Icons.menu,
+          color: Colors.black,
         ),
         centerTitle: true,
         title: Text(
@@ -38,6 +41,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {},
             icon: const Icon(
               Icons.search,
+              color: Colors.black,
             ),
           )
         ],
@@ -78,7 +82,8 @@ class _HomePageState extends State<HomePage> {
                                       currentIndex = index + 1;
                                     });
                                   },
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
                                   child: Text("${index + 1}"),
                                 ),
                               );
@@ -87,16 +92,37 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               ListView.builder(
                   shrinkWrap: true,
                   itemCount: newsList.length,
                   itemBuilder: (context, index) {
                     return Container(
-                      padding: const  EdgeInsets.all(10),
-                      child: Column(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
                         children: [
-                          Text("${newsList[index].title}"),
+                          Expanded(
+                              flex: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    image: DecorationImage(
+                                        image: NetworkImage(
+                                            "${newsList[index].urlToImage}"))),
+                              )),
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Text("${newsList[index].title}"),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text("${newsList[index].publishedAt}"),
+                                ],
+                              ))
                         ],
                       ),
                     );
