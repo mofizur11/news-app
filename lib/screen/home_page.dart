@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/model/news_model.dart';
-import 'package:news_app/service/news_api_service.dart';
+import 'package:news_app/provider/news_provider.dart';
+import 'package:news_app/widget/articles_widget.dart';
 import 'package:news_app/widget/const.dart';
+import 'package:news_app/widget/error_screen.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,25 +14,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Articles> newsList = [];
+  // List<Articles> newsList = [];
 
-  @override
+/*  @override
   void didChangeDependencies() async {
     newsList = await NewsApiService().fetchNewsData();
     setState(() {});
     super.didChangeDependencies();
-  }
+  }*/
+  String sortBy = SortNews.popularity.name;
 
   int currentIndex = 1;
   @override
   Widget build(BuildContext context) {
+    final providerData = Provider.of<NewsProvider>(context);
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
         leading: const Icon(
           Icons.menu,
-          color: Colors.black,
         ),
         centerTitle: true,
         title: Text(
@@ -41,7 +44,6 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {},
             icon: const Icon(
               Icons.search,
-              color: Colors.black,
             ),
           )
         ],
@@ -62,7 +64,13 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    paginationButton(onTap: () {}, title: "Prev"),
+                    paginationButton(
+                        onTap: () {
+                          setState(() {
+                            currentIndex--;
+                          });
+                        },
+                        title: "Prev"),
                     Flexible(
                         child: ListView.builder(
                             shrinkWrap: true,
@@ -87,46 +95,59 @@ class _HomePageState extends State<HomePage> {
                                   child: Text("${index + 1}"),
                                 ),
                               );
+                              
                             })),
-                    paginationButton(onTap: () {}, title: "Next"),
+                    paginationButton(
+                        onTap: () {
+                          setState(() {
+                            currentIndex++;
+                          });
+                        },
+                        title: "Next"),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 10,
+              DropdownButton<String>(
+                  value: sortBy,
+                  items: [
+                    DropdownMenuItem(
+                      child: Text("${SortNews.popularity.name}"),
+                      value: SortNews.popularity.name,
+                    ),
+                    DropdownMenuItem(
+                      child: Text("${SortNews.publishedAt.name}"),
+                      value: SortNews.publishedAt.name,
+                    ),
+                    DropdownMenuItem(
+                      child: Text("${SortNews.relevancy.name}"),
+                      value: SortNews.relevancy.name,
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      sortBy = value!;
+                    });
+                  }),
+              FutureBuilder<List<Articles>>(
+                future: providerData.getNewsData(
+                    page: currentIndex, sortBy: sortBy),
+                /* future: NewsApiService.fetchNewsData(
+                    page: currentIndex, sortBy: sortBy),*/
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const ErrorScreen();
+                  }
+
+                  return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return ArticlesWidget(snapshot.data![index]);
+                      });
+                },
               ),
-              ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: newsList.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      padding: const EdgeInsets.all(20),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 1,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    image: DecorationImage(
-                                        image: NetworkImage(
-                                            "${newsList[index].urlToImage}"))),
-                              )),
-                          Expanded(
-                              flex: 3,
-                              child: Column(
-                                children: [
-                                  Text("${newsList[index].title}"),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text("${newsList[index].publishedAt}"),
-                                ],
-                              ))
-                        ],
-                      ),
-                    );
-                  })
             ],
           ),
         ),
@@ -143,3 +164,5 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 }
+
+enum SortNews { publishedAt, popularity, relevancy }

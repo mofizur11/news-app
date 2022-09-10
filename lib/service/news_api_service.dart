@@ -4,10 +4,28 @@ import 'package:news_app/model/news_model.dart';
 
 class NewsApiService {
 
-  Future<List<Articles>> fetchNewsData() async {
+  // Future<List<Articles>> fetchNewsData() async {
+  //   List<Articles> newsList = [];
+  //   var link = Uri.parse(
+  //       "https://newsapi.org/v2/everything?q=bitcoin&apiKey=475875bf058e40f4b806ac3235a8dcaf&sortBy=popularity&pageSize=5");
+
+  //   var responce = await http.get(link);
+  //   var data = jsonDecode(responce.body);
+  //   Articles articles;
+  //   for (var i in data["articles"]) {
+  //     articles = Articles.fromJson(i);
+  //     newsList.add(articles);
+  //   }
+  //   return newsList;
+  // }
+
+  
+
+  static Future<List<Articles>> fetchNewsData(
+      {required int page, required String sortBy}) async {
     List<Articles> newsList = [];
     var link = Uri.parse(
-        "https://newsapi.org/v2/everything?q=bitcoin&apiKey=475875bf058e40f4b806ac3235a8dcaf&sortBy=popularity&pageSize=5");
+        "https://newsapi.org/v2/everything?q=bitcoin&apiKey=475875bf058e40f4b806ac3235a8dcaf&pageSize=5&page=$page&sortBy=$sortBy");
 
     var responce = await http.get(link);
     var data = jsonDecode(responce.body);
