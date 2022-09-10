@@ -18,8 +18,30 @@ class _NewsDetailsState extends State<NewsDetails> {
         Provider.of<NewsProvider>(context).sortByDate(date: publishAt);
 
     //final currentNews =  Provider.of<NewsProvider>(context).findByDate(publishAt: publishedAt);
-    return Container(
-      child: Text("${currenData.author}"),
+    return Scaffold(
+     appBar: AppBar(
+      title: Text("${currenData.author}"),
+     ),
+
+     body: Padding(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+         Container(
+          height: 250,
+          decoration: BoxDecoration(
+            image: DecorationImage(image:NetworkImage("${currenData.urlToImage}")),
+          ),
+          child: Image.network("${currenData.urlToImage}",fit: BoxFit.cover,),
+         ),
+
+         Text('${currenData.content}')
+        ],
+      ), 
+     ),
+
+
+
     );
   }
 }
